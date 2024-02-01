@@ -1,6 +1,8 @@
 package main
+
 import (
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -8,7 +10,7 @@ const conferenceTickets int = 50
 
 var remainingTickets uint = 50
 var conferenceName = "Go Conference"
-var bookings = []string{}
+var bookings = make([]map[string]string , 0)
 
 func main() {
 
@@ -74,8 +76,7 @@ func getFirstNames() []string {
 	firstNames:= []string{}
 
 	for _, booking := range bookings {
-		var names = strings.Fields(booking)
-		firstNames = append(firstNames, names[0])
+		firstNames = append(firstNames, booking["firstName"])
 
 	}
 
@@ -96,7 +97,15 @@ func validateUserInputs(firstName string, lastName string, email string, userTic
 func bookTickets(userTickets uint, firstName string, lastName string, email string) {
 
 	remainingTickets = remainingTickets - userTickets
-	bookings = append(bookings, firstName + "" +lastName)
+	
+	var user = make(map[string]string)
+	user["firstName"] = firstName
+	user["lastName"] = lastName
+	user["email"] = email
+	user["numberOfTickets"] = strconv.FormatUint(uint64(userTickets), 10)
+
+
+	bookings = append(bookings, user)
 
 
 	fmt.Printf("Thank you! %v %v for booking %v tickets. You'll receive a confirmation mail at %v\n", firstName, lastName, userTickets, email)
