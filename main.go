@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"strings"
+	"sync"
+	"time"
 )
 
 const conferenceTickets int = 50
@@ -18,22 +20,28 @@ type user struct {
 	userTickets uint
 }
 
+var wg = sync.WaitGroup{}
+
 func main() {
 
 	greetUsers()
 
-	for {
+	// for {
 		firstName, lastName, email, userTickets := getUserInputs()
 
 		isValidName, isValidEmail, isValidTicketNumber := validateUserInputs(firstName, lastName, email, userTickets)
 
 		if isValidName && isValidEmail && isValidTicketNumber {
 			bookTickets(userTickets, firstName, lastName, email)
+
+			wg.Add(1)
+			go sendTickets(userTickets, firstName, lastName, email)
 			firstName:= getFirstNames()
 
 			fmt.Printf("The first names %v\n", firstName)
 			if remainingTickets == 0 {
-				break
+				// break
+				fmt.Println("Our conference is booked out. Come back next year.")
 			}
 		} else {
 			 if !isValidName {
@@ -48,9 +56,11 @@ func main() {
 				fmt.Println("Enter a valid ticket number")
 			 }
 
-			 continue
+			
 		}
-	}
+	// }
+
+	wg.Wait()
 	
 
 }
@@ -119,5 +129,15 @@ func bookTickets(userTickets uint, firstName string, lastName string, email stri
 
 	fmt.Printf("%v ticket(s) still available\n", remainingTickets)
 	fmt.Printf("These are all our bookings: %v\n", bookings)
+
+}
+
+func sendTickets(userTickets uint, firstName string, lastName string, email string) {
+	time.Sleep(10 * time.Second)
+	var ticket = fmt.Sprintf("%v tickets for %v %v", userTickets, firstName, lastName)
+	fmt.Println("#################")
+	fmt.Printf("Sending ticket:\n %v \nto email address %v\n", ticket, email)
+	fmt.Println("#################")
+	wg.Done()
 
 }
